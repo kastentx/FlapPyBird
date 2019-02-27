@@ -10,7 +10,8 @@ FPS = 30
 SCREENWIDTH  = 288
 SCREENHEIGHT = 512
 # amount by which base can maximum shift to left
-PIPEGAPSIZE  = 100 # gap between upper and lower part of pipe
+PIPEGAPSIZE  = 200 # gap between upper and lower part of pipe
+PIPEHEIGHT   = 320
 BASEY        = SCREENHEIGHT * 0.79
 # image, sound and hitmask  dicts
 IMAGES, SOUNDS, HITMASKS = {}, {}, {}
@@ -62,7 +63,7 @@ def main():
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
-    pygame.display.set_caption('Flappy Bird')
+    pygame.display.set_caption('Quantum Cat')
 
     # numbers sprites for score display
     IMAGES['numbers'] = (
@@ -258,6 +259,10 @@ def mainGame(movementInfo):
         for pipe in upperPipes:
             pipeMidPos = pipe['x'] + IMAGES['pipe'][0].get_width() / 2
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
+                
+                # NOTE: adding a check here for gate choice
+                checkGateChoice(upperPipes[0], lowerPipes[0], playery)
+                
                 score += 1
                 SOUNDS['point'].play()
 
@@ -306,7 +311,8 @@ def mainGame(movementInfo):
             SCREEN.blit(IMAGES['pipe'][0], (uPipe['x'], uPipe['y']))
             SCREEN.blit(IMAGES['pipe'][1], (lPipe['x'], lPipe['y']))
 
-        SCREEN.blit(IMAGES['base'], (basex, BASEY))
+        SCREEN.blit(IMAGES['base'], (basex, BASEY))        
+        
         # print score so player overlaps the score
         showScore(score)
 
@@ -320,6 +326,16 @@ def mainGame(movementInfo):
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+
+def checkGateChoice(uPipe, lPipe, pHeight):
+    """ checks the player's gate choice by looking at the height within the pipegap """
+    #print("player height: {}".format(pHeight))
+    #print("upper pipe: {}".format(uPipe['y']))
+    #print("lower pipe: {}".format(lPipe['y']))
+    if (uPipe['y'] + PIPEHEIGHT + (PIPEGAPSIZE / 2) > pHeight):
+        print('top gate')
+    else:
+        print('bottom gate')
 
 
 def showGameOverScreen(crashInfo):
@@ -398,7 +414,7 @@ def getRandomPipe():
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
     gapY += int(BASEY * 0.2)
     pipeHeight = IMAGES['pipe'][0].get_height()
-    pipeX = SCREENWIDTH + 10
+    pipeX = SCREENWIDTH + 25 # gap between pipes on the ground
 
     return [
         {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
