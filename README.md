@@ -1,7 +1,6 @@
-FlappyBirdClone
-===============
+Quantum Flappy Bird!
 
-A Flappy Bird Clone made using [python-pygame][1]
+A Flappy Bird Clone made using [python-pygame][1] and Qiskit.
 
 How-to
 ------
