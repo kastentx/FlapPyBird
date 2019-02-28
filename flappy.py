@@ -49,6 +49,7 @@ BACKGROUNDS_LIST = (
 PIPES_LIST = (
     'assets/sprites/pipe-green.png',
     'assets/sprites/pipe-red.png',
+    'assets/sprites/pipe-purple.png',
 )
 
 
@@ -63,7 +64,7 @@ def main():
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
     SCREEN = pygame.display.set_mode((SCREENWIDTH, SCREENHEIGHT))
-    pygame.display.set_caption('Quantum Cat')
+    pygame.display.set_caption('Flappy Q')
 
     # numbers sprites for score display
     IMAGES['numbers'] = (
@@ -191,6 +192,7 @@ def showWelcomeAnimation():
 
 
 def mainGame(movementInfo):
+    quantumGateStatus = False # set dynamically based on a new measurement
     score = playerIndex = loopIter = 0
     playerIndexGen = movementInfo['playerIndexGen']
     playerx, playery = int(SCREENWIDTH * 0.2), movementInfo['playery']
@@ -199,8 +201,8 @@ def mainGame(movementInfo):
     baseShift = IMAGES['base'].get_width() - IMAGES['background'].get_width()
 
     # get 2 new pipes to add to upperPipes lowerPipes list
-    newPipe1 = getRandomPipe()
-    newPipe2 = getRandomPipe()
+    newPipe1 = getRandomPipe(quantumGateStatus)
+    newPipe2 = getRandomPipe(quantumGateStatus)
 
     # list of upper pipes
     upperPipes = [
@@ -261,7 +263,8 @@ def mainGame(movementInfo):
             if pipeMidPos <= playerMidPos < pipeMidPos + 4:
                 
                 # NOTE: adding a check here for gate choice
-                checkGateChoice(upperPipes[0], lowerPipes[0], playery)
+                if 'quantum' in pipe.keys() and pipe['quantum'] == True:
+                    checkGateChoice(upperPipes[0], lowerPipes[0], playery)
                 
                 score += 1
                 SOUNDS['point'].play()
@@ -295,7 +298,7 @@ def mainGame(movementInfo):
 
         # add new pipe when first pipe is about to touch left of screen
         if 0 < upperPipes[0]['x'] < 5:
-            newPipe = getRandomPipe()
+            newPipe = getRandomPipe(quantumGateStatus)
             upperPipes.append(newPipe[0])
             lowerPipes.append(newPipe[1])
 
@@ -329,9 +332,9 @@ def mainGame(movementInfo):
 
 def checkGateChoice(uPipe, lPipe, pHeight):
     """ checks the player's gate choice by looking at the height within the pipegap """
-    #print("player height: {}".format(pHeight))
-    #print("upper pipe: {}".format(uPipe['y']))
-    #print("lower pipe: {}".format(lPipe['y']))
+    # print("player height: {}".format(pHeight))
+    # print("upper pipe: {}".format(uPipe['y']))
+    # print("lower pipe: {}".format(lPipe['y']))
     if (uPipe['y'] + PIPEHEIGHT + (PIPEGAPSIZE / 2) > pHeight):
         print('top gate')
     else:
@@ -408,7 +411,7 @@ def playerShm(playerShm):
         playerShm['val'] -= 1
 
 
-def getRandomPipe():
+def getRandomPipe(quantumGateStatus):
     """returns a randomly generated pipe"""
     # y of gap between upper and lower pipe
     gapY = random.randrange(0, int(BASEY * 0.6 - PIPEGAPSIZE))
@@ -417,8 +420,8 @@ def getRandomPipe():
     pipeX = SCREENWIDTH + 25 # gap between pipes on the ground
 
     return [
-        {'x': pipeX, 'y': gapY - pipeHeight},  # upper pipe
-        {'x': pipeX, 'y': gapY + PIPEGAPSIZE}, # lower pipe
+        {'x': pipeX, 'y': gapY - pipeHeight, 'quantum': quantumGateStatus},  # upper pipe
+        {'x': pipeX, 'y': gapY + PIPEGAPSIZE, 'quantum': quantumGateStatus}, # lower pipe
     ]
 
 
